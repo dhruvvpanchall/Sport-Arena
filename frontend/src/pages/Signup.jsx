@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import API from '../lib/api'
 import { useNavigate, Link } from 'react-router-dom'
 import AuthLayout from '../components/AuthLayout'
 
@@ -11,7 +11,7 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const { data } = await axios.post('/api/auth/signup', form)
+      const { data } = await API.post('/api/auth/signup', form)
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify({ _id: data._id, name: data.name, email: data.email, role: data.role }))
       navigate('/dashboard')

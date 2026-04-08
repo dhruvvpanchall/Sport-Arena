@@ -1,13 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 export default function Payment() {
   const location = useLocation()
@@ -46,7 +39,7 @@ export default function Payment() {
     setPaying(true)
     setPayError('')
     try {
-      await API.post('/bookings', {
+      await API.post('/api/bookings', {
         venueName: venue.name,
         venueType: venue.type,
         venueLocation: venue.location,

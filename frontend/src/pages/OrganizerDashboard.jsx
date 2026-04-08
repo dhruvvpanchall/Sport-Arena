@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 const SPORTS = ['Football', 'Cricket', 'Badminton', 'Tennis', 'Basketball', 'Volleyball', 'Hockey', 'Kabaddi']
 const ICON_MAP = { Football: '⚽', Cricket: '🏏', Badminton: '🏸', Tennis: '🎾', Basketball: '🏀', Volleyball: '🏐', Hockey: '🏑', Kabaddi: '🤼' }
@@ -34,7 +27,7 @@ export default function OrganizerDashboard() {
 
   const loadTournaments = async () => {
     try {
-      const { data } = await API.get('/tournaments/my')
+      const { data } = await API.get('/api/tournaments/my')
       setTournaments(data)
     } catch {
       setError('Failed to load tournaments')
@@ -55,10 +48,10 @@ export default function OrganizerDashboard() {
         entryFee: Number(form.entryFee) || 0,
       }
       if (editingId) {
-        const { data } = await API.put(`/tournaments/${editingId}`, payload)
+        const { data } = await API.put(`/api/tournaments/${editingId}`, payload)
         setTournaments((prev) => prev.map((t) => (t._id === editingId ? data : t)))
       } else {
-        const { data } = await API.post('/tournaments', payload)
+        const { data } = await API.post('/api/tournaments', payload)
         setTournaments((prev) => [data, ...prev])
       }
       resetForm()
@@ -97,7 +90,7 @@ export default function OrganizerDashboard() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this tournament?')) return
     try {
-      await API.delete(`/tournaments/${id}`)
+      await API.delete(`/api/tournaments/${id}`)
       setTournaments((prev) => prev.filter((t) => t._id !== id))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to delete')
@@ -107,7 +100,7 @@ export default function OrganizerDashboard() {
   const viewRegistrations = async (tournament) => {
     setRegsModal({ open: true, tournament, registrations: [], loading: true })
     try {
-      const { data } = await API.get(`/tournaments/${tournament._id}/registrations`)
+      const { data } = await API.get(`/api/tournaments/${tournament._id}/registrations`)
       setRegsModal((prev) => ({ ...prev, registrations: data, loading: false }))
     } catch {
       setRegsModal((prev) => ({ ...prev, loading: false }))

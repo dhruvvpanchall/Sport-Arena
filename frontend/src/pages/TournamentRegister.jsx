@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 const SPORT_ICON = { Football: '⚽', Cricket: '🏏', Badminton: '🏸', Tennis: '🎾', Basketball: '🏀', Volleyball: '🏐', Hockey: '🏑', Kabaddi: '🤼' }
 
@@ -32,8 +25,8 @@ export default function TournamentRegister() {
     const loadData = async () => {
       try {
         const [tournamentRes, profileRes] = await Promise.all([
-          API.get(`/tournaments/${id}`),
-          API.get('/user/profile'),
+          API.get(`/api/tournaments/${id}`),
+          API.get('/api/user/profile'),
         ])
         const t = tournamentRes.data
         if (t.isRegistered) {

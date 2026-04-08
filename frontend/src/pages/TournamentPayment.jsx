@@ -1,13 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 const SPORT_ICON = { Football: '⚽', Cricket: '🏏', Badminton: '🏸', Tennis: '🎾', Basketball: '🏀', Volleyball: '🏐', Hockey: '🏑', Kabaddi: '🤼' }
 
@@ -46,7 +39,7 @@ export default function TournamentPayment() {
     setPaying(true)
     setPayError('')
     try {
-      await API.post(`/tournaments/${tournament._id}/register`, registration)
+      await API.post(`/api/tournaments/${tournament._id}/register`, registration)
       setPaid(true)
     } catch (err) {
       setPayError(err.response?.data?.message || 'Registration failed. Please try again.')

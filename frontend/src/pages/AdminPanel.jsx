@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 const ROLE_COLORS = {
   user: 'bg-gray-100 text-gray-600',
@@ -42,9 +35,9 @@ export default function AdminPanel() {
     setLoading(true)
     try {
       const [statsRes, requestsRes, usersRes] = await Promise.all([
-        API.get('/admin/stats'),
-        API.get('/admin/role-requests'),
-        API.get('/admin/users'),
+        API.get('/api/admin/stats'),
+        API.get('/api/admin/role-requests'),
+        API.get('/api/admin/users'),
       ])
       setStats(statsRes.data)
       setRequests(requestsRes.data)
@@ -59,7 +52,7 @@ export default function AdminPanel() {
   const handleApprove = async (userId) => {
     setActionLoading(userId)
     try {
-      await API.put(`/admin/role-requests/${userId}/approve`)
+      await API.put(`/api/admin/role-requests/${userId}/approve`)
       setRequests((prev) => prev.filter((r) => r._id !== userId))
       await loadData()
     } catch (err) {
@@ -72,7 +65,7 @@ export default function AdminPanel() {
   const handleReject = async (userId) => {
     setActionLoading(userId)
     try {
-      await API.put(`/admin/role-requests/${userId}/reject`)
+      await API.put(`/api/admin/role-requests/${userId}/reject`)
       setRequests((prev) => prev.filter((r) => r._id !== userId))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to reject')
@@ -85,7 +78,7 @@ export default function AdminPanel() {
     if (!window.confirm(`Change this user's role to "${ROLE_LABELS[newRole]}"?`)) return
     setActionLoading(userId)
     try {
-      await API.put(`/admin/users/${userId}/role`, { role: newRole })
+      await API.put(`/api/admin/users/${userId}/role`, { role: newRole })
       setUsers((prev) => prev.map((u) => (u._id === userId ? { ...u, role: newRole, roleRequest: '' } : u)))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to change role')

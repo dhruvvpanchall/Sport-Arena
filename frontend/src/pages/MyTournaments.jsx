@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 const SPORT_ICON = { Football: '⚽', Cricket: '🏏', Badminton: '🏸', Tennis: '🎾', Basketball: '🏀', Volleyball: '🏐', Hockey: '🏑', Kabaddi: '🤼' }
 
@@ -18,7 +11,7 @@ export default function MyTournaments() {
   const [withdrawingId, setWithdrawingId] = useState(null)
 
   useEffect(() => {
-    API.get('/tournaments/registered')
+    API.get('/api/tournaments/registered')
       .then(({ data }) => setTournaments(data))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -28,7 +21,7 @@ export default function MyTournaments() {
     if (!window.confirm('Are you sure you want to withdraw from this tournament?')) return
     setWithdrawingId(id)
     try {
-      await API.delete(`/tournaments/${id}/register`)
+      await API.delete(`/api/tournaments/${id}/register`)
       setTournaments((prev) => prev.filter((t) => t._id !== id))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to withdraw')

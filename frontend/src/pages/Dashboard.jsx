@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 const ICON_MAP = { 'Football Turf': '⚽', 'Cricket Ground': '🏏', 'Badminton Court': '🏸', 'Tennis Court': '🎾', 'Multi-Sport': '🏟️' }
 const SPORT_ICON = { Football: '⚽', Cricket: '🏏', Badminton: '🏸', Tennis: '🎾', Basketball: '🏀', Volleyball: '🏐', Hockey: '🏑', Kabaddi: '🤼' }
@@ -41,7 +34,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     // Load user profile
-    API.get('/user/profile')
+    API.get('/api/user/profile')
       .then(({ data }) => {
         setUserCity(data.city || '')
         setUserRole(data.role || 'user')
@@ -54,13 +47,13 @@ export default function Dashboard() {
       .catch(() => {})
 
     // Load venues
-    API.get('/venues')
+    API.get('/api/venues')
       .then(({ data }) => setVenues(data))
       .catch(() => {})
       .finally(() => setLoadingVenues(false))
 
     // Load tournaments
-    API.get('/tournaments')
+    API.get('/api/tournaments')
       .then(({ data }) => setTournaments(data))
       .catch(() => {})
       .finally(() => setLoadingTournaments(false))
@@ -86,7 +79,7 @@ export default function Dashboard() {
     try {
       const formData = new FormData()
       formData.append('city', city)
-      await API.put('/user/profile', formData, {
+      await API.put('/api/user/profile', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       setUserCity(city)
@@ -111,7 +104,7 @@ export default function Dashboard() {
 
   const handleRequestRole = async (role) => {
     try {
-      const { data } = await API.post('/user/request-role', { role })
+      const { data } = await API.post('/api/user/request-role', { role })
       alert(`✅ ${data.message}`)
       setUserRoleRequest(role)
       setRoleModal(false)

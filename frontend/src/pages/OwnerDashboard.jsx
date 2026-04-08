@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 const VENUE_TYPES = ['Football Turf', 'Cricket Ground', 'Badminton Court', 'Tennis Court', 'Multi-Sport']
 const ICON_MAP = { 'Football Turf': '⚽', 'Cricket Ground': '🏏', 'Badminton Court': '🏸', 'Tennis Court': '🎾', 'Multi-Sport': '🏟️' }
@@ -33,7 +26,7 @@ export default function OwnerDashboard() {
 
   const loadVenues = async () => {
     try {
-      const { data } = await API.get('/venues/my')
+      const { data } = await API.get('/api/venues/my')
       setVenues(data)
     } catch {
       setError('Failed to load venues')
@@ -54,10 +47,10 @@ export default function OwnerDashboard() {
         amenities: form.amenities.split(',').map((a) => a.trim()).filter(Boolean),
       }
       if (editingId) {
-        const { data } = await API.put(`/venues/${editingId}`, payload)
+        const { data } = await API.put(`/api/venues/${editingId}`, payload)
         setVenues((prev) => prev.map((v) => (v._id === editingId ? data : v)))
       } else {
-        const { data } = await API.post('/venues', payload)
+        const { data } = await API.post('/api/venues', payload)
         setVenues((prev) => [data, ...prev])
       }
       resetForm()
@@ -92,7 +85,7 @@ export default function OwnerDashboard() {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this venue?')) return
     try {
-      await API.delete(`/venues/${id}`)
+      await API.delete(`/api/venues/${id}`)
       setVenues((prev) => prev.filter((v) => v._id !== id))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to delete')
@@ -101,7 +94,7 @@ export default function OwnerDashboard() {
 
   const handleToggleAvailability = async (venue) => {
     try {
-      const { data } = await API.put(`/venues/${venue._id}`, { available: !venue.available })
+      const { data } = await API.put(`/api/venues/${venue._id}`, { available: !venue.available })
       setVenues((prev) => prev.map((v) => (v._id === venue._id ? data : v)))
     } catch {
       alert('Failed to update availability')
@@ -111,7 +104,7 @@ export default function OwnerDashboard() {
   const viewBookings = async (venue) => {
     setBookingsModal({ open: true, venue, bookings: [], loading: true })
     try {
-      const { data } = await API.get(`/venues/${venue._id}/bookings`)
+      const { data } = await API.get(`/api/venues/${venue._id}/bookings`)
       setBookingsModal((prev) => ({ ...prev, bookings: data, loading: false }))
     } catch {
       setBookingsModal((prev) => ({ ...prev, loading: false }))

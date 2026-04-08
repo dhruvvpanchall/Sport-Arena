@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
+import API, { API_URL } from '../lib/api'
 
 const allSports = [
   { icon: '⚽', label: 'Football' },
@@ -21,13 +21,6 @@ const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Pro']
 const genders = ['Male', 'Female', 'Other']
 
 const skillIcons = { Beginner: '🌱', Intermediate: '🔥', Advanced: '⚡', Pro: '🏆' }
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -50,7 +43,7 @@ export default function Profile() {
   const [avatarPreview, setAvatarPreview] = useState('')
 
   const loadProfile = () => {
-    API.get('/user/profile')
+    API.get('/api/user/profile')
       .then(({ data }) => {
         setProfile(data)
         setForm({
@@ -65,7 +58,7 @@ export default function Profile() {
           skillLevel: data.skillLevel || '',
           avatar: data.avatar || '',
         })
-        if (data.avatar) setAvatarPreview(data.avatar)
+        if (data.avatar) setAvatarPreview(`${API_URL}${data.avatar}`)
         setLoading(false)
 
         // If profile is incomplete (no city/phone/favSports), open edit mode
@@ -112,7 +105,7 @@ export default function Profile() {
       formData.append('skillLevel', form.skillLevel)
       if (avatarFile) formData.append('avatar', avatarFile)
 
-      const { data } = await API.put('/user/profile', formData, {
+      const { data } = await API.put('/api/user/profile', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
@@ -123,7 +116,7 @@ export default function Profile() {
         bio: data.bio || '', favSports: data.favSports || [],
         skillLevel: data.skillLevel || '', avatar: data.avatar || '',
       })
-      if (data.avatar) setAvatarPreview(data.avatar)
+      if (data.avatar) setAvatarPreview(`${API_URL}${data.avatar}`)
       setAvatarFile(null)
 
       localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, avatar: data.avatar }))
@@ -145,7 +138,7 @@ export default function Profile() {
         bio: profile.bio || '', favSports: profile.favSports || [],
         skillLevel: profile.skillLevel || '', avatar: profile.avatar || '',
       })
-      setAvatarPreview(profile.avatar || '')
+      setAvatarPreview(profile.avatar ? `${API_URL}${profile.avatar}` : '')
       setAvatarFile(null)
     }
     setEditing(false)

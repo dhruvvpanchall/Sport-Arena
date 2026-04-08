@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
-
-const API = axios.create({ baseURL: '/api' })
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+import API from '../lib/api'
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([])
@@ -16,7 +9,7 @@ export default function MyBookings() {
   const [cancellingId, setCancellingId] = useState(null)
 
   useEffect(() => {
-    API.get('/bookings')
+    API.get('/api/bookings')
       .then(({ data }) => setBookings(data))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -26,7 +19,7 @@ export default function MyBookings() {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return
     setCancellingId(id)
     try {
-      const { data } = await API.put(`/bookings/${id}/cancel`)
+      const { data } = await API.put(`/api/bookings/${id}/cancel`)
       setBookings((prev) => prev.map((b) => (b._id === id ? data : b)))
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to cancel booking.')
