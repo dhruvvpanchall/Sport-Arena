@@ -4,7 +4,7 @@
   "description": "Sports venue booking and tournament management platform",
   "scripts": {
     "install-all": "cd backend && npm install && cd ../frontend && npm install",
-    "build": "cd frontend && npm run build",
+    "build": "cd backend && npm install",
     "start": "cd backend && node server.js",
     "dev": "cd backend && npm run dev"
   },
