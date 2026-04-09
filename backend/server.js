@@ -8,7 +8,7 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  process.env.CLIENT_URL,
+  process.env.CLIENT_URL?.replace(/\/+$/, ''),
 ].filter(Boolean);
 
 app.use(cors({
@@ -16,7 +16,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false);
     }
   },
   credentials: true,
